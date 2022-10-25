@@ -1,0 +1,58 @@
+name: Terragrunt Apply on Merge
+
+on:
+  push:
+      branches:
+      - main
+      - master
+      paths:
+      - 'aws_accounts/**'
+      - 'securityhub-configuration.yaml'
+
+  workflow_dispatch:
+
+env:
+  MAIN_BRANCH: master
+  AWS_REGION: eu-central-1
+
+  TERRAFORM_VERSION: '1.2.4'
+  TERRAGRUNT_VERSION: '0.38.3'
+  TERRAGRUNT_DIR: "./aws_accounts"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: '[AWS] Configure credentials'
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        role-to-assume: ${{ secrets.ASSUME_ROLE }}
+        role-duration-seconds: 900
+
+    - name: '[Setup] Terraform'
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+    - name: '[Setup] Terragrunt'
+      uses: autero1/action-terragrunt@v1.1.0
+      with:
+        terragrunt_version: ${{ env.TERRAGRUNT_VERSION }}
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: '[Terragrunt] Apply'
+      # Do not apply if branch is not the main branch
+      # to prevent Workflow Dispatch from deploying non-main branches
+      if: github.ref == 'refs/heads/${{ env.MAIN_BRANCH }}'
+      working-directory: ${{ env.TERRAGRUNT_DIR }}
+      run: |
+        terragrunt run-all apply --terragrunt-non-interactive

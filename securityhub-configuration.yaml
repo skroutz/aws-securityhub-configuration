@@ -1,0 +1,17 @@
+# Production Infrastructure Accounts
+aws-account-alias:
+  subscriptions:
+    CIS: true
+    AWS: true
+    PCI: true
+  controls:
+    CIS:
+      disabled:
+      - id: "1.7"
+        reason: "Test CIS"
+    AWS:
+      disabled:
+      - id: "EC2.19"
+        reason: "Test AWS"
+    PCI:
+      disabled: []

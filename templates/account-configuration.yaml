@@ -1,0 +1,17 @@
+
+<AWS-ACCOUNT-ALIAS>:
+  subscriptions:
+    CIS: true
+    AWS: true
+    PCI: true
+  controls:
+    CIS:
+      disabled: []
+      # - id: "1.7"
+        # reason: "Why disable this CIS control"
+    AWS: []
+      disabled: []
+      # - id: "EC2.19"
+        # reason: "Why disable this AWS control"
+    PCI:
+      disabled: []
